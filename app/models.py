@@ -1,9 +1,21 @@
+import sys
+from PIL import Image
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes. fields import GenericForeignKey
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from io import BytesIO
 
 User = get_user_model()
+
+
+class MinResolutionErrorException(Exception):
+    pass
+
+
+class MaxResolutionErrorException(Exception):
+    pass
 
 # 1 Category
 # 2 Product
@@ -49,6 +61,11 @@ class Category(models.Model):
 
 class Product(models.Model):
     """  абстрактна модель продукту для подальшого наслідування """
+
+    MIN_RESOLUTION = (400, 400)
+    MAX_RESOLUTION = (800, 800)
+    MAX_IMAGE_SIZE = 3145728
+
     class Meta:
         abstract = True
 
@@ -62,9 +79,34 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
+    def save(self, *args, **kwargs):
+        """ Пренудительне обрізання зображення """
+        image = self.image
+        img = Image.open(image)
+        new_img = img.convert('RGB')
+        resized_new_img = new_img.resize((200, 200), Image.ANTIALIAS)
+        filestream = BytesIO()
+        resized_new_img.save(filestream, 'JPEG', quality=90)
+        filestream.seek(0)
+        name = '{}.{} '.format(*self.image.name.split('.'))
+        print(self.image.name, name)
+        self.image = InMemoryUploadedFile(
+            filestream, 'ImageField', name, 'jpeg/image', sys.getsizeof(filestream), None
+        )
+        super().save(*args, **kwargs)
+
+        # min_height, min_width = self.MIN_RESOLUTION
+        # max_height, max_width = self.MAX_RESOLUTION
+        # if img.height < min_height or img.width < min_width:
+        #     raise MinResolutionErrorException('Завантажене зображення замале')
+        # if img.height > max_height or img.width > max_width:
+        #     raise MaxResolutionErrorException('Завантажене зображення завелике')
+        #super().save(*args, **kwargs)
+        #return Image
+
 
 class CartProduct(models.Model):
-    """ модель связку покупок пользователя та корзини """
+    """ модель связку покупок покупця та корзини """
 
     user = models.ForeignKey('Customer', verbose_name='покупець', on_delete=models.CASCADE)
     cart = models.ForeignKey('Cart', verbose_name='корзина', on_delete=models.CASCADE, related_name='related_products')
@@ -92,7 +134,7 @@ class Cart(models.Model):
 
 
 class Customer(models.Model):
-    """ модель користувача """
+    """ модель покупця """
 
     user = models.ForeignKey(User, verbose_name='користувач', on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, verbose_name='номер телефона')
@@ -114,7 +156,8 @@ class Customer(models.Model):
 
 
 class Notebook(Product):
-    """ клас наследник """
+    """ Модель ноутбука
+    клас наслідник від моделі Продукту """
 
     diagonal = models.CharField(max_length=255, verbose_name='диагонал')
     display_type = models.CharField(max_length=255, verbose_name='итп дисплея')
@@ -128,6 +171,9 @@ class Notebook(Product):
 
 
 class Smartphone(Product):
+    """ Модель смартфону
+    клас наслідник від моделі Продукту"""
+
     diagonal = models.CharField(max_length=255, verbose_name='диагонал')
     display_type = models.CharField(max_length=255, verbose_name='итп дисплея')
     resolution = models.CharField(max_length=255, verbose_name='разрешение екрана')

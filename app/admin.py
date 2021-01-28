@@ -1,7 +1,34 @@
-from django.forms import ModelChoiceField
-from django import forms
+from PIL import Image
+from django.forms import ModelChoiceField, ModelForm, ValidationError
+#from django import forms
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import *
+
+
+class NotebookAdminForm(ModelForm):
+    """ Минимальна та максимальна вага зображення """
+    # MIN_RESOLUTION = (400, 400)
+    # MAX_RESOLUTION = (800, 800) # перенесли в модель Product
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image'].help_text = mark_safe\
+            ("""<span style="color:red; font-size:14px">Завантажуйте зображення ''з розумом {}*{}''</span>"""
+                                                   .format(*Product.MIN_RESOLUTION))
+
+    # def clean_images(self):
+    #     image = self.cleaned_data['image']
+    #     img = Image.open(image)
+    #     min_height, min_width = Product.MIN_RESOLUTION
+    #     max_height, max_width = Product.MAX_RESOLUTION
+    #     if image.size > Product.MAX_IMAGE_SIZE:
+    #         raise ValidationError('Розмір зображення завеликий скоротіть до 3 МB.')
+    #     if img.height < min_height or img.width < min_width:
+    #         raise ValidationError('Завантажене зображення замале')
+    #     if img.height > max_height or img.width > max_width:
+    #         raise ValidationError('Завантажене зображення завелике')
+    #     return Image
 
 
 # class NotebookCategoryChoiceField(forms.ModelChoiceField):
