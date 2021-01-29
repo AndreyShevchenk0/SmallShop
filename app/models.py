@@ -1,13 +1,23 @@
-import sys
-from PIL import Image
+# import sys
+# from PIL import Image
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes. fields import GenericForeignKey
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from io import BytesIO
+from django.urls import reverse
+# from django.core.files.uploadedfile import InMemoryUploadedFile
+# from io import BytesIO
 
 User = get_user_model()
+
+def get_models_for_count(*model_names):
+    return [models.Count(model_names)for model_name in model_names]
+
+# функция преобразующая все модели Products
+# аналог get_absolut_url
+def get_product_url(obj, viewname):
+    ct_model = obj.__class__.meta.model_name
+    return  reverse(viewname, kwargs={'ct_model': ct_model, 'slug': obj.slug})
 
 
 class MinResolutionErrorException(Exception):
@@ -26,7 +36,7 @@ class MaxResolutionErrorException(Exception):
 # 7 Specifications
 
 class LatestProductsManager:
-
+    """ менеджер модели """
     @staticmethod
     def get_products_for_main_page(*args, **kwargs):
         with_respect_to = kwargs.get('with_respect_to')
@@ -45,8 +55,25 @@ class LatestProductsManager:
 
 
 class LatestProducts:
-
+    """ обьект менеджера модели """
     object = LatestProductsManager()
+
+
+class CategoryManager(models.Manager):
+    """ млдель категорий менеджер """
+
+    CATEGORY_NAME_COUNT_NAME = {
+        'Ноутбуки': 'notebook__count',
+        'Смартфони': 'smartphone__count'
+    }
+
+    def get_queryset(self):
+        return super().get_queryset()
+
+    def get_categories_for_left_sidebar(self):
+        models =get_models_for_count('notebook', 'smartphone')
+        qs = list(self.get_queryset().annotate(*models).values())
+        return [dict(name=c['name'], slug=c['slug'], count=c[self.CATEGORY_NAME_COUNT_NAME[c['name']]])for c in qs]
 
 
 class Category(models.Model):
@@ -54,6 +81,7 @@ class Category(models.Model):
 
     name = models.CharField(max_length=255, verbose_name='имя категорii')
     slug = models.SlugField(unique=True)
+    objects = CategoryManager()
 
     def __str__(self):
         return self.name
@@ -79,22 +107,25 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        """ Пренудительне обрізання зображення """
-        image = self.image
-        img = Image.open(image)
-        new_img = img.convert('RGB')
-        resized_new_img = new_img.resize((200, 200), Image.ANTIALIAS)
-        filestream = BytesIO()
-        resized_new_img.save(filestream, 'JPEG', quality=90)
-        filestream.seek(0)
-        name = '{}.{} '.format(*self.image.name.split('.'))
-        print(self.image.name, name)
-        self.image = InMemoryUploadedFile(
-            filestream, 'ImageField', name, 'jpeg/image', sys.getsizeof(filestream), None
-        )
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     """ Пренудительне обрізання зображення """
+    #     # основной вариант
+    #     image = self.image
+    #     img = Image.open(image)
+    #     new_img = img.convert('RGB')
+    #     resized_new_img = new_img.resize((200, 200), Image.ANTIALIAS)
+    #     filestream = BytesIO()
+    #     resized_new_img.save(filestream, 'JPEG', quality=90)
+    #     filestream.seek(0)
+    #     name = '{}.{} '.format(*self.image.name.split('.'))
+    #     print(self.image.name, name)
+    #     self.image = InMemoryUploadedFile(
+    #         filestream, 'ImageField', name, 'jpeg/image', sys.getsizeof(filestream), None
+    #     )
+    #     super().save(*args, **kwargs)
 
+
+        # 2-й вариант
         # min_height, min_width = self.MIN_RESOLUTION
         # max_height, max_width = self.MAX_RESOLUTION
         # if img.height < min_height or img.width < min_width:
@@ -118,7 +149,7 @@ class CartProduct(models.Model):
     final_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='загальна вартість')
 
     def __str__(self):
-        return 'Продукт: {} (для корзини)'.format(self.product.title)
+        return 'Продукт: {} (для корзини)'.format(self.content_object.title)
 
 
 class Cart(models.Model):
@@ -128,6 +159,8 @@ class Cart(models.Model):
     products = models.ManyToManyField(CartProduct, blank=True, related_name='related_car')
     total_products = models.PositiveIntegerField(default=0)  # для коректного отображения товара в корзине
     final_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='загальна вартість')
+    in_order = models.BooleanField(default=False)
+    for_anonymous_user = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)
@@ -169,6 +202,8 @@ class Notebook(Product):
     def __str__(self):
         return '{} : {}'.format(self.category.name, self.title)
 
+    def get_absolute_url(self):
+        return get_product_url(self, 'product_detail')
 
 class Smartphone(Product):
     """ Модель смартфону
@@ -180,12 +215,14 @@ class Smartphone(Product):
     accum_volume = models.CharField(max_length=255, verbose_name=' обьем батареі')
     ram = models.CharField(max_length=255, verbose_name='оперативная память')
     video = models.CharField(max_length=255, verbose_name='видео карта')
-    sd = models.BooleanField(default=True)
-    sd_volume_max = models.CharField(max_length=255, verbose_name='максимальная встраиваемая память')
+    sd = models.BooleanField(default=True, verbose_name='наявність SD карти')
+    sd_volume_max = models.CharField(max_length=255, null=True, blank=True,
+                                     verbose_name='максимальная вбудована память')
     main_cam_mp = models.CharField(max_length=255, verbose_name='главная касера')
     front_cam_mp = models.CharField(max_length=255, verbose_name='фронтальная камера')
 
     def __str__(self):
         return '{} : {}'.format(self.category.name, self.title)
 
-
+    def get_absolute_url(self):
+        return get_product_url(self, 'product_detail')
