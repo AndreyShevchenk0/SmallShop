@@ -1,18 +1,15 @@
-# import sys
-# from PIL import Image
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes. fields import GenericForeignKey
 from django.urls import reverse
 from django.utils import timezone
-# from django.core.files.uploadedfile import InMemoryUploadedFile
-# from io import BytesIO
+
 
 User = get_user_model()
 
 def get_models_for_count(*model_names):
-    return [models.Count(model_names) for model_name in model_names]
+    return [models.Count(model_name) for model_name in model_names]
 
 # функция преобразующая все модели Products
 # аналог get_absolut_url
@@ -20,21 +17,6 @@ def get_product_url(obj, viewname):
     ct_model = obj.__class__.meta.model_name
     return  reverse(viewname, kwargs={'ct_model': ct_model, 'slug': obj.slug})
 
-
-# class MinResolutionErrorException(Exception):
-#     pass
-#
-#
-# class MaxResolutionErrorException(Exception):
-#     pass
-
-# 1 Category
-# 2 Product
-# 3 CartProduct
-# 4 Cart
-# 5 Order
-# 6 Customer
-# 7 Specifications
 
 class LatestProductsManager:
     """ менеджер модели """
@@ -48,7 +30,7 @@ class LatestProductsManager:
             model_products = ct_model.model_class()._base_manager.all().order_by('-id')[:5]
             products.extend(model_products)
         if with_respect_to:
-            ct_model = ContentType.filter(model=with_respect_to)
+            ct_model = ContentType.objects.filter(model=with_respect_to)
             if ct_model.exists():
                 if with_respect_to in args:
                     return sorted(products, key=lambda x: x.__class__.meta.modul_name.startwith(with_respect_to),
@@ -98,10 +80,6 @@ class Category(models.Model):
 
 class Product(models.Model):
     """  абстрактна модель продукту для подальшого наслідування """
-
-    # MIN_RESOLUTION = (400, 400)
-    # MAX_RESOLUTION = (800, 800)
-    # MAX_IMAGE_SIZE = 3145728
 
     class Meta:
         abstract = True
@@ -156,7 +134,6 @@ class CartProduct(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
-    #product = models.ForeignKey(Product, verbose_name='товар', on_delete=models.CASCADE)
     qty = models.PositiveIntegerField(default=1)
     final_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name='загальна вартість')
 
@@ -235,7 +212,7 @@ class Smartphone(Product):
     sd = models.BooleanField(default=True, verbose_name='наявність SD карти')
     sd_volume_max = models.CharField(max_length=255, null=True, blank=True,
                                      verbose_name='максимальная вбудована память')
-    main_cam_mp = models.CharField(max_length=255, verbose_name='главная касера')
+    main_cam_mp = models.CharField(max_length=255, verbose_name='главная камера')
     front_cam_mp = models.CharField(max_length=255, verbose_name='фронтальная камера')
 
     def __str__(self):
