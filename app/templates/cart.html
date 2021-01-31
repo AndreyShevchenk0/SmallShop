@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h3 class="text-center mt-5 mb-5">Ваша корзина {% if not cart.products.count %}пуста{% endif %}</h3>
+<h3 class="text-center mt-5 mb-5">Кошик {% if not cart.products.count %}порошній ! {% endif %}</h3>
 {% if messages %}
     {% for message in messages %}
       <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -16,40 +16,40 @@
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Наименование</th>
-      <th scope="col">Изображение</th>
-      <th scope="col">Цена</th>
-      <th scope="col">Кол-во</th>
-        <th scope="col">Общая цена</th>
-      <th scope="col">Действие</th>
+      <th scope="col">Назва</th>
+      <th scope="col">Зображення</th>
+      <th scope="col">Ціна</th>
+      <th scope="col">Кіл-ть</th>
+        <th scope="col">Заг-на ціна</th>
+      <th scope="col">Дія</th>
     </tr>
   </thead>
   <tbody>
     {% for item in cart.products.all %}
         <tr>
           <th scope="row">{{ item.content_object.title }}</th>
-          <td class="w-25"><img src="{{ item.content_object.image.url }}" class="img-fluid"></td>
-          <td>{{ item.content_object.price }} руб.</td>
+          <td class="w-25"><img src="{{ item.product.image.url }}" class="img-fluid"></td>
+          <td>{{ item.content_object.price }} грн.</td>
           <td>
-            <form action="{% url 'change_qty' ct_model=item.content_object.get_model_name slug=item.content_object.slug %}" method="POST">
+            <form action="{% url 'change_qty' slug=item.product.slug %}" method="POST">
               {% csrf_token %}
               <input type="number" class="form-control" name="qty" style="width: 70px;" min="1" value="{{ item.qty }}">
               <br>
               <input type="submit" class="btn btn-primary" value="Изменить кол-во">
             </form>
           </td>
-            <td>{{ item.final_price }} руб.</td>
+            <td>{{ item.final_price }} грн.</td>
           <td>
-            <a href="{% url 'delete_from_cart' ct_model=item.content_object.get_model_name slug=item.content_object.slug %}"><button class="btn btn-danger">Удалить из корзины</button></a>
+            <a href="{% url 'delete_from_cart'  slug=item.product.slug %}"><button class="btn btn-danger">Видалити з кошика</button></a>
           </td>
         </tr>
     {% endfor %}
         <tr>
           <td colspan="2"></td>
-          <td>Итого:</td>
+          <td>Загалом:</td>
           <td>{{ cart.total_products }}</td>
-          <td><strong>{{ cart.final_price }} руб.</strong></td>
-          <td><a href="{% url 'checkout' %}"><button class="btn btn-primary">Перейти к оформлению</button></a></td>
+          <td><strong>{{ cart.final_price }} грн.</strong></td>
+          <td><a href="{% url 'checkout' %}"><button class="btn btn-primary">Перейти до оформлення</button></a></td>
         </tr>
   </tbody>
 </table>
