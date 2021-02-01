@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from .views import BaseView, ProductDetailView, CategoryDetailView, CartView, AddToCartView, DeleteFromCartView,\
-    ChangeQTYView, CheckoutView, MakeOrderView, LoginView, RegistrationView
+    ChangeQTYView, CheckoutView, MakeOrderView, LoginView, RegistrationView, ProfileView
 
 
 urlpatterns = [
@@ -18,4 +18,5 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('registration/', RegistrationView.as_view(), name='registration'),
     path('logout/', LogoutView.as_view(next_page="/"), name='logout'),
+    path('profile/', ProfileView.as_view(), name='profile'),
 ]
