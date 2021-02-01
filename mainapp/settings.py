@@ -82,6 +82,24 @@ DATABASES = {
     }
 }
 
+# sudo pip install psycopg2-binary
+# psql postgres
+# CREATE DATABASE ecom_db; # создаем базу данних
+# CREATE USER ecomuser WITH PASSWORD 'devpass'; # создаем пользователя
+# GRANT ALL PRIVILEGES ON DATABASE "ecom_db" TO ecomuser;
+# Виход
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'ecom_db',
+#         'USER': 'ecomuser',
+#         'PASSWORD': 'devpass',
+#         'HOST': '127.0.0.1',
+#         'PORT': 5432
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

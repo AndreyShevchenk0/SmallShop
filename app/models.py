@@ -19,9 +19,15 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('category_detail', kwargs={'slug': self.slug})
 
+    def get_fields_for_filter_in_template(self):
+        return ProductFeatures.objects.filter(
+            category=self,
+            use_in_filter=True,
+        ).prefetch_related('category').value('feature_key', 'feature_measure', 'feature_name', 'filter_type')
+
     class Meta:
-        verbose_name_plural = 'Категорії'  # -обьявления
-        verbose_name = 'Категорію'  # -обьявление
+        verbose_name_plural = 'Категорії'
+        verbose_name = 'Категорію'
 
 
 class Product(models.Model):
@@ -46,6 +52,56 @@ class Product(models.Model):
     class Meta:
         verbose_name_plural = 'Продукти'
         verbose_name = 'Продукт'
+
+
+class ProductFeatures(models.Model):
+    """ модель расширяющая пробукт """
+
+    RADIO = 'radio'
+    CHECKBOX = 'checkbox'
+
+    FILTER_TYPE_CHOICES = (
+        (RADIO, 'Радіокнопка'),
+        (CHECKBOX, 'Чекбокс')
+    )
+    feature_key = models.CharField(max_length=100, verbose_name='ключ характеристики')
+    feature_name = models.CharField(max_length=255, verbose_name='наіменування характеристики')
+    category = models.ForeignKey(Category, verbose_name='категорія', on_delete=models.CASCADE)
+    postfix_for_value = models.CharField(max_length=20, null=True, blank=True, verbose_name='постфикс для значення',
+                                         help_text=f'наприклад для характеристик "години роботи" до значення можно '
+                                                   f'добавити постфикс "годин", як результ "10 годин"')
+    use_in_filter = models.BooleanField(default=False, verbose_name='використовувати в філтраціі товарів в шаблоні')
+    filter_type = models.CharField(max_length=20, verbose_name='тип фільтра', default=CHECKBOX,
+                                   choices=FILTER_TYPE_CHOICES)
+    filter_measure = models.CharField(max_length=50, verbose_name='Одиниця виміру для фільтра',
+                                      help_text='Одиниця виміру для конкретного фільтру.Наприклад '
+                                                '"Частота процесора (Ghz)"')
+
+    def __str__(self):
+        return f'Категорія - "{self.category.name}" | Характеристика - "{self.feature_name}"'
+
+    class Meta:
+        verbose_name_plural = 'Модель розширення продуктів'
+        verbose_name = 'Модель розширення продуктів2'
+
+
+class ProductFeaturesValidators(models.Model):
+    """ задаем характеристики и потом валидируем """
+
+    category = models.ForeignKey(Category, verbose_name='категория', on_delete=models.CASCADE)
+    feature = models.ForeignKey(ProductFeatures, verbose_name='Характеристика', null=True, blank=True,
+                                on_delete=models.CASCADE)
+    feature_value = models.CharField(max_length=255, unique=True, verbose_name='Значення характеристики')
+
+    def __str__(self):
+        if not self.feature:
+            return f'Валідатор категоріі"{self.category.name}" - характеристика не вибрана'
+        return f'Валідатор категоріі"{self.category.name}" | ' f'Характеристика - "{self.feature.feature_name}" |'\
+               f'Значення - "{self.feature_value}" |'
+
+    class Meta:
+        verbose_name_plural = 'Модель розширення продуктів + валідатор'
+        verbose_name = 'Модель розширення продуктів + валідатор2'
 
 
 class CartProduct(models.Model):
