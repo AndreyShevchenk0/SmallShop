@@ -3,7 +3,7 @@
 {% block content %}
     <nav aria-label="breadcrumb" class="mt-3">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'base' %}">Главная</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'base' %}">Головна</a></li>
         <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}
                 </a></li>
         <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
@@ -15,11 +15,11 @@
     </div>
     <div class="col-md-8">
         <h3>{{ product.title }}</h3>
-        <p>Цена: {{ product.price }} грн.</p>
-        <p>Описание: {{ product.description }}</p>
+        <p>Ціна: {{ product.price }} грн.</p>
+        <p>Опис: {{ product.description }}</p>
         <hr>
         <a href="{% url 'add_to_cart' ct_model=ct_model slug=product.slug %}"><button class="btn btn-danger">
-            Добавить в корзину</button></a>
+            Добавити у кошик</button></a>
     </div>
 
 </div>

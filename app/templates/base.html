@@ -47,15 +47,16 @@
           </li>
           {% if not request.user.is_authenticated %}
             <li>
-              <a class="nav-link text-light" href="#">Авторізація</a>
+              <a class="nav-link text-light" href="{% url 'login' %}">Авторізація</a>
             </li>
             <li>
-              <a class="nav-link text-light" href="#">Регістрація</a>
+              <a class="nav-link text-light" href="{% url 'registration' %}">Регістрація</a>
             </li>
           {% endif %}
             <li class="nav-item">
               {% if request.user.is_authenticated %}<span class="navbar text text-light">Вітаемо, <span class="badge badge-danger">
               <a style="text-decoration: none; font-size:14px; color:white;" href="#">{{ request.user.username }}</a>
+              <a href="{% url 'logout' %}">Вихід</a>
               {% endif %}
             </span>
             </span>
