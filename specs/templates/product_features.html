@@ -36,13 +36,13 @@
                 <a href="{% url 'new-feature' %}" class="list-group-item list-group-item-action {% if request.path == "/product-specs/new-feature/" %}active{% endif %}" aria-current="true">
                     Створити нову характеристику
                 </a>
-                <a href="#" class="list-group-item list-group-item-action {% if request.path == "/product-specs/new-validator/" %}active{% endif %}" aria-current="true">
+                <a href="{% url 'new-validator' %}" class="list-group-item list-group-item-action {% if request.path == "/product-specs/new-validator/" %}active{% endif %}" aria-current="true">
                     Створити значення характеристики
                 </a>
-                <a href="#" class="list-group-item list-group-item-action {% if request.path == "/product-specs/new-product-feature/" %}active{% endif %}" aria-current="true">
+                <a href="{% url 'new-product-feature' %}" class="list-group-item list-group-item-action {% if request.path == "/product-specs/new-product-feature/" %}active{% endif %}" aria-current="true">
                     Створити характеристику для товару
-                <a href="#" class="list-group-item list-group-item-action {% if request.path == "/product-specs/update-product-features/" %}active{% endif %}" aria-current="true">
-                    Редгувати характеристику для товару
+                <a href="{% url 'update-product-features'%}}" class="list-group-item list-group-item-action {% if request.path == "/product-specs/update-product-features/" %}active{% endif %}" aria-current="true">
+                    Редагувати характеристику для товару
                 </a>
             </div>
         </div>
@@ -91,7 +91,7 @@
         $('.feature-value-div').append(
             '<input type="text" class="form-control" id="feature-value" required></input>',
             '<br>',
-            '<input type="submit" class="btn btn-success" id="create-validator" value="Создать">'
+            '<input type="submit" class="btn btn-success" id="create-validator" value="Створити">'
         )
     })
 </script>

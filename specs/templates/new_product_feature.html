@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <div class="category-validator-div">
-    <label for="category-validators-id">Категория</label>
+    <label for="category-validators-id">Категорія</label>
     <select class="form-select" name="category-validators" id="category-validators-id" aria-label="Default select example">
     <option selected>---</option>
         {% for category in categories %}
@@ -12,13 +12,13 @@
 </div>
     <div class="product-search-ajax" style="display: none; margin-top: 20px;">
       <div class="form-group">
-        <label for="search-text">Поиск товара</label>
-        <input type="text" name='search-text' class="form-control" id="search-text" aria-describedby="emailHelp" placeholder="Введите слова для поиска">
+        <label for="search-text">Пошук товару</label>
+        <input type="text" name='search-text' class="form-control" id="search-text" aria-describedby="emailHelp" placeholder="Введіть слова для пошуку">
       </div>
     </div>
     <div class="search-results">
         <ul class="list-group" id="no-results" style="display: none">
-            <li class="list-group-item list-group-item-light">По вашему запросу результатов не найдено</li>
+            <li class="list-group-item list-group-item-light">За вашиму запитом результатів не знайдено</li>
         </ul>
         <ul class="list-group" id="search-product-results" style="padding-top: 10px;">
         </ul>
@@ -31,7 +31,7 @@
 <div class="product-feature-choices-values" style="margin-top: 10px;">
 
 </div>
-<input type="submit" class="btn btn-success" value="Создать" style="display: none; margin-top: 10px;" id="create-product-feature">
+<input type="submit" class="btn btn-success" value="Створити" style="display: none; margin-top: 10px;" id="create-product-feature">
 {% endblock %}
 {% block js %}
 <script>
@@ -147,7 +147,7 @@
                         + v.title +
                         ' | ' +
                         v.price +
-                        ' руб.' +
+                        ' грн.' +
                         '</li>')
                         }
                     })
