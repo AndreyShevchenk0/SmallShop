@@ -2,15 +2,15 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<h3 class="text-center mt-5 mb-5">Оформление заказа</h3>
+<h3 class="text-center mt-5 mb-5">Оформление замовлення</h3>
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Наименование</th>
-      <th scope="col">Изображение</th>
-      <th scope="col">Цена</th>
-      <th scope="col">Кол-во</th>
-        <th scope="col">Общая цена</th>
+      <th scope="col">Назва</th>
+      <th scope="col">Зображення</th>
+      <th scope="col">Ціна</th>
+      <th scope="col">Кіл-ть</th>
+        <th scope="col">Загальна вартість</th>
     </tr>
   </thead>
   <tbody>
@@ -18,24 +18,24 @@
         <tr>
           <th scope="row">{{ item.content_object.title }}</th>
           <td class="w-25"><img src="{{ item.content_object.image.url }}" class="img-fluid"></td>
-          <td>{{ item.content_object.price }} руб.</td>
+          <td>{{ item.content_object.price }} грн.</td>
           <td>{{ item.qty }}</td>
-            <td>{{ item.final_price }} руб.</td>
+            <td>{{ item.final_price }} грн.</td>
         </tr>
     {% endfor %}
         <tr>
           <td colspan="2"></td>
-          <td>Итого:</td>
+          <td>Загалом:</td>
           <td>{{ cart.total_products }}</td>
-          <td><strong>{{ cart.final_price }} руб.</strong></td>
+          <td><strong>{{ cart.final_price }} грн.</strong></td>
         </tr>
   </tbody>
 </table>
 <hr>
-<h3 class="text-center mt-5 mb-5">Форма заказа</h3>
+<h3 class="text-center mt-5 mb-5">Форма замовлення</h3>
 <form action="{% url 'make_order' %}" method="POST">
   {% csrf_token %}
   {{ form|crispy }}
-  <input type="submit" class="btn btn-success btn-block mb-3" values="Оформить заказ">
+  <input type="submit" class="btn btn-success btn-block mb-3" values="Оформити замовлення">
 </form>
 {% endblock content %}

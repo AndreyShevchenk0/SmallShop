@@ -51,7 +51,7 @@ class CategoryDetailView(CartMixin, DetailView):
 
 
 class AddToCartView(CartMixin, View):
-    """ добавление товара в корзину """
+    """ добавляемо  товарр у кошик """
 
     def get(self, request, *args, **kwargs):
         product_slug = kwargs.get('slug')
