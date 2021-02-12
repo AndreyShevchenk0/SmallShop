@@ -1,15 +1,15 @@
 from django.shortcuts import render
 from django.views import View
 
-from collections import defaultdict#
-from django.contrib import messages#
-from django.shortcuts import render#
-from django.views.generic import View#
-from django.http import HttpResponseRedirect, JsonResponse#, JsonResponse
+from collections import defaultdict
+from django.contrib import messages
+from django.shortcuts import render
+from django.views.generic import View
+from django.http import HttpResponseRedirect, JsonResponse
 
 from .models import CategoryFeature, FeatureValidator, ProductFeature
 from .forms import NewCategoryForm, NewCategoryFeatureKeyForm
-from app.models import Category, Product#
+from app.models import Category, Product
 
 
 class BaseSpecView(View):
